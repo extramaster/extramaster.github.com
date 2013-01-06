@@ -1,110 +1,133 @@
-/* The code that generates the table! */
-var generatedHTML = "";
-var collength = 0;
-for (var i in conversionObject.special) {
-    generatedHTML += "<tr class='context'><th colspan='8'>" + i + "</th></tr><tr>";
-    collength = 0;
-    for (var j in conversionObject.special[i]) {
-        if (collength % 8 == 0) {
-            generatedHTML += "</tr><tr>";
+/*global conversionObject, document, window, alert, location, Option */
+/*jslint forin: true, unparam: true */
+/* Variables */
+var i, j, generatedHTML, collength, contextt, currentTabd, activeLink, masterConvert, anotherIeFix, fullFrom, fullTo;
+(function (notDefined) {
+    "use strict";
+    var i, j;
+    window.addEvent = function (event, target, method) {
+        if (target.addEventListener) {
+            target.addEventListener(event, method, false);
+        } else if (target.attachEvent) {
+            target.attachEvent("on" + event, method);
         }
-        collength++;
-        generatedHTML += "<td>" + j + "</td>";
+    };
+    /* The code that generates the table! */
+    generatedHTML = '<table id="masterTable" colspan="8"><colgroup colspan="8"><col><col class="even"><col><col class="even"><col><col class="even"><col><col class="even"></colgroup><thead></thead><tbody>';
+    for (i in conversionObject.special) {
+        generatedHTML += "<tr class='context'><th colspan='8'>" + i + "</th></tr><tr>";
+        collength = 0;
+        for (j in conversionObject.special[i]) {
+            if (collength % 8 === 0) {
+                generatedHTML += "</tr><tr>";
+            }
+            collength = collength + 1;
+            generatedHTML += "<td>" + j + "</td>";
+        }
+        for (j = 0; j < 8 - (collength % 8); j += 1) {
+            if (8 - (collength % 8) < 8) {
+                generatedHTML += "<td> </td>";
+            }
+        }
+        generatedHTML += "</tr>";
     }
-    for (var j = 0; j < 8 - (collength % 8); j++) {
-        if (8 - (collength % 8) < 8) {
-            generatedHTML += "<td> </td>";
+    for (i in conversionObject.master) {
+        generatedHTML += "<tr class='context'><th colspan='8'>" + i + "</th></tr><tr>";
+        collength = 0;
+        for (j in conversionObject.master[i]) {
+            if (collength % 8 === 0) {
+                generatedHTML += "</tr><tr>";
+            }
+            collength = collength + 1;
+            generatedHTML += "<td>" + j + "</td>";
         }
+        for (j = 0; j < 8 - (collength % 8); j += 1) {
+            if (8 - (collength % 8) < 8) {
+                generatedHTML += "<td> </td>";
+            }
+        }
+        generatedHTML += "</tr>";
     }
-    generatedHTML += "</tr>";
-}
-for (var i in conversionObject.master) {
-    generatedHTML += "<tr class='context'><th colspan='8'>" + i + "</th></tr><tr>";
-    collength = 0;
-    for (var j in conversionObject.master[i]) {
-        if (collength % 8 == 0) {
-            generatedHTML += "</tr><tr>";
-        }
-        collength++;
-        generatedHTML += "<td>" + j + "</td>";
-    }
-    for (var j = 0; j < 8 - (collength % 8); j++) {
-        if (8 - (collength % 8) < 8) {
-            generatedHTML += "<td> </td>";
-        }
-    }
-    generatedHTML += "</tr>";
-}
-document.getElementById("masterTableBody").innerHTML += generatedHTML;
+    document.getElementById("quickIEFix").innerHTML = generatedHTML + "</tbody></table>";
 
 
 
 
-/* The kinda complex code that powers the second demo */
+    /* The kinda complex code that powers the second demo */
 
-for (var i in conversionObject.special) {
-    document.getElementById("fullContext").innerHTML += "<option value='" + i + "'>" + i + "</option>";
-}
-for (var i in conversionObject.master) {
-    document.getElementById("fullContext").innerHTML += "<option value='" + i + "'>" + i + "</option>";
-}
-
-function updateFullContext() {
-    var contextt = document.getElementById("fullContext");
-    if (typeof (conversionObject.special[contextt.value]) !== "undefined") {
-        document.getElementById("fullFrom").innerHTML = "";
-        document.getElementById("fullTo").innerHTML = "";
-        for (var j in conversionObject.special[contextt.value]) {
-            document.getElementById("fullFrom").innerHTML += "<option value='" + j + "'>" + j + "</option>";
-            document.getElementById("fullTo").innerHTML += "<option value='" + j + "'>" + j + "</option>";
-        }
-    } else if (typeof (conversionObject.master[contextt.value]) !== "undefined") {
-        document.getElementById("fullFrom").innerHTML = "";
-        document.getElementById("fullTo").innerHTML = "";
-        for (var j in conversionObject.master[contextt.value]) {
-            document.getElementById("fullFrom").innerHTML += "<option value='" + j + "'>" + j + "</option>";
-            document.getElementById("fullTo").innerHTML += "<option value='" + j + "'>" + j + "</option>";
-        }
-    } else {
-        alert("Gaming the system eh?");
+    anotherIeFix = document.getElementById("fullContext");
+    for (i in conversionObject.special) {
+        anotherIeFix.options[anotherIeFix.options.length] = new Option(i, i);
     }
 
+    for (i in conversionObject.master) {
+        anotherIeFix.options[anotherIeFix.options.length] = new Option(i, i);
+    }
 
-}
-document.getElementById("fullContext").addEventListener("change", updateFullContext);
-updateFullContext();
+    function updateFullContext() {
+        var j;
+        contextt = document.getElementById("fullContext").value;
+        fullFrom = document.getElementById("fullFrom");
+        fullTo = document.getElementById("fullTo");
+        while (fullTo.options.length > 0) {
+            fullTo.options[0] = null;
+        }
+        while (fullFrom.options.length > 0) {
+            fullFrom.options[0] = null;
+        }
+        if (conversionObject.special[contextt] !== notDefined) {
+            for (j in conversionObject.special[contextt]) {
+                fullFrom.options[fullFrom.length] = new Option(j, j);
+                fullTo.options[fullTo.length] = new Option(j, j);
+            }
+        } else if (conversionObject.master[contextt] !== notDefined) {
+            for (j in conversionObject.master[contextt]) {
+                fullFrom.options[fullFrom.length] = new Option(j, j);
+                fullTo.options[fullTo.length] = new Option(j, j);
+            }
+        } else {
+            alert("Gaming the system eh?");
+        }
 
-function masterConvert() {
-    alert(conversionObject.functions.converter(document.getElementById("fullContext").value, document.getElementById("fullFrom").value, document.getElementById("fullTo").value, document.getElementById('fullValue').value))
-}
+
+    }
+    window.addEvent("change", document.getElementById("fullContext"), updateFullContext);
+    updateFullContext();
+
+    masterConvert = function () {
+        alert(conversionObject.functions.converter(document.getElementById("fullContext").value, document.getElementById("fullFrom").value, document.getElementById("fullTo").value, document.getElementById('fullValue').value));
+    };
 
 
 
-/* Misc. Code that relate to the demo/docs page */
-var currentTabd=["about","download","docs","table","demo"];
-function resetActive(){
-for (var i=0;i<currentTabd.length;i++){
-document.getElementById(currentTabd[i]+"-button").setAttribute("class","");
-}
-}
+    /* Misc. Code that relate to the demo/docs page */
+    currentTabd = ["about", "download", "docs", "table", "demo"];
 
-resetActive();
-var activeLink=document.getElementById(location.hash.substr(1)+"-button");
-if (activeLink===null){
-/* Something was not found */
-}else{
-activeLink.setAttribute("class","active");
-}
+    function resetActive() {
+        for (i = 0; i < currentTabd.length; i += 1) {
+            document.getElementById(currentTabd[i] + "-button").setAttribute("class", "");
+        }
+    }
 
-function activeCheck(){
-for (var i=0;i<currentTabd.length;i++){
-if (document.body.scrollTop<document.getElementById(currentTabd[i]).offsetTop){
-resetActive();
-if (i-1<0){i=1;}
-document.getElementById(currentTabd[i-1]+"-button").setAttribute("class","active");
-return false;
-}
-}
-}
-window.addEventListener("scroll",activeCheck);
-document.body.addEventListener("scroll",activeCheck);
+    resetActive();
+    activeLink = document.getElementById(location.hash.substr(1) + "-button");
+    if (activeLink !== null) {
+        activeLink.setAttribute("class", "active");
+    }
+
+
+    function activeCheck() {
+        for (i = 0; i < currentTabd.length; i += 1) {
+            if (document.body.scrollTop < document.getElementById(currentTabd[i]).offsetTop) {
+                resetActive();
+                if (i - 1 < 0) {
+                    i = 1;
+                }
+                document.getElementById(currentTabd[i - 1] + "-button").setAttribute("class", "active");
+                return false;
+            }
+        }
+    }
+    window.onscroll = activeCheck;
+    window.addEvent("scroll", document.body, activeCheck);
+}());
